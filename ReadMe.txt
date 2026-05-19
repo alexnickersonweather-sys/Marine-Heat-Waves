@@ -195,6 +195,8 @@
 #          again, a separate code is necessary for USF data
 # Files Used: Docs/List_Climo_All.txt
 #             Data/(FACT/NDBC/SWT/USF)/Climo/[Reg]_(Month/Year).nc
+# Functions : trend_compute.py
+#           : matreg.py (called within trend_compute.py)
 # Files Made: Stats/Trends_(Month/Year).txt
 #
 # F02_Trends_Barchart.py
@@ -214,24 +216,6 @@
 #             Data/(FACT/NDBC/SWT/USF)/Climo/[Reg]_Day.nc
 #             Data/(FACT/NDBC/SWT/USF)/Climo/[Reg]_Month.nc
 # Files Made: Figs/MHW_Possible/(FACT/NDBC/SWT)_[Reg].png
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
 #
 #
 #
