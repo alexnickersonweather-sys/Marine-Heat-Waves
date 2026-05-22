@@ -132,8 +132,8 @@ for i, stat in stat_all.iterrows():
             mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
         
         # y-axis limits and ticks
-        ax.set_ylim(+8,+36)
-        ax.set_yticks(np.arange(10,40,step=10))
+        ax.set_ylim(0,40)
+        ax.set_yticks(np.arange(0,40,step=10))
         ax.yaxis.set_minor_locator(MultipleLocator(1))
         ax.tick_params(top=True, right=True, bottom=True, left=True)
         
