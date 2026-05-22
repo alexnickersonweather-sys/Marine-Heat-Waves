@@ -103,25 +103,25 @@
 # Functions : C01_Plot.py
 # Files Made: Figs/Data/(FACT/NDBC/SWT)_L00N/[Reg].png
 #
-# C02_Stats_L00_Counts_All.py
+# C02_Counts_All.py
 # Purpose: Plot a bar chart with number of stations in each collection
 # Files Used: Docs/List_Download_All.txt
 # Files Made: Figs/Statistics/Counts_All.png
 #
-# C02_Stats_L00_Counts_Owner.py
+# C02_Counts_Owner.py
 # Purpose: Plot bar charts counting how many stations each owner possesses
 # Files Used: Docs/List_Download_All.txt
 # Files Made: Figs/Statistics/Counts_Owner_(thresh).png
 # "thresh" is the threshold of the minimum number of stations that the owners
 # must have in order to be included on the bar chart.  Choose your threshold.
 #
-# C03_Stats_L00_Locations_(All/Type).py
-# Purpose: Make maps showing all stations  or by type.
+# C03_Locations.py
+# Purpose: Make maps showing all stations or stations by type, on a static map.
 # Files Used: Docs/List_Download_All.txt
-# Files Made: Figs/Statistics/Locations_All.png
+# Files Made: Figs/Statistics/Locations_(All/FACT/NDBC/SWT/USF).png
 # Functions : C03_Map.py
 #
-# C04_Stats_L00_Depths_(All/Type).py
+# C04_Depths_(All/Type).py
 # Purpose: Make bar charts showing the depths of all stations or by type.
 # Files Used: Docs/List_Download_All.txt
 # Files Made: Figs/Statistics/Locations_All.png
@@ -175,7 +175,7 @@
 # Purpose: Make an interactive map using Folium/Leaflet.  The map is color-coded
 #          with the different kinds of stations having their own symbols.
 # Files Used: Docs/List_Climo_All.txt
-# Files Made: Figs/Maps/Years.html
+# Files Made: Figs/Maps/Locations_Climo.html
 #
 # E05_Climo_Counts.py
 # Purpose: Make simple bar charts of the lengths of the data series based on the
@@ -216,7 +216,4 @@
 #             Data/(FACT/NDBC/SWT/USF)/Climo/[Reg]_Day.nc
 #             Data/(FACT/NDBC/SWT/USF)/Climo/[Reg]_Month.nc
 # Files Made: Figs/MHW_Possible/(FACT/NDBC/SWT)_[Reg].png
-#
-#
-#
 #
