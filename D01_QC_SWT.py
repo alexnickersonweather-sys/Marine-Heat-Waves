@@ -20,7 +20,10 @@ for stat in stat_all.columns:
     if stat_all[stat].dtype == 'object':
         stat_all[stat] = stat_all[stat].str.strip()
 
-stat_all = stat_all.loc[stat_all["Type"] == "SWT",:]
+# The Onslow Bay station includes data from multiple depths, so it needs to be
+# processed using the same code as the USF-COMPS stations
+stat_all = stat_all.loc[(stat_all["Type"] == "SWT") &
+                        (stat_all["Reg"] != "mooring-ob27m-onslow-bay-nc"),:]
 
 nsa = 2
 nsd = 3
@@ -37,17 +40,22 @@ if not os.path.exists(f_new):
 
 # loop through stations
 for i, stat in stat_all.iterrows():
+    head = "Data/" + stat["Type"] + "/"
+    f_old = head + "L00N/"
+    f_new = head + "QC/"
+    
+    # create the folder only if necessary
+    if not os.path.exists(f_new):
+        os.makedirs(f_new) 
     # extract data from netCDF files
     file2open = f_old + stat["Reg"] + ".nc"
-    if stat["Reg"] != "mooring-ob27m-onslow-bay-nc":
-        continue
     
     # open the data file
     ds = xr.open_dataset(file2open,mask_and_scale=True)
     df = ds.to_dataframe()
     df = df.reset_index()
     ds.close()
-    stop
+    
     # rename columns for standarization across datasets and create new
     # columns as necessary for quality control
     df = df.rename(columns={"longitude": "lon",
