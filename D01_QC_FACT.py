@@ -27,16 +27,16 @@ nsd = 3
 q_lo = 0.003
 q_hi = 0.997
 
-head = "Data/FACT/"
-f_old = head + "L00N/"
-f_new = head + "QC/"
-
-# create the folder only if necessary
-if not os.path.exists(f_new):
-    os.makedirs(f_new) 
-    
 # loop through stations
 for i, stat in stat_all.iterrows():
+    head = "Data/" + stat["Type"] + "/"
+    f_old = head + "L00N/"
+    f_new = head + "QC/"
+    
+    # create the folder only if necessary
+    if not os.path.exists(f_new):
+        os.makedirs(f_new) 
+        
     # extract data from netCDF files
     file2open = f_old + stat["Reg"] + ".nc"
                 
