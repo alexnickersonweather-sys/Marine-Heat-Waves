@@ -103,11 +103,6 @@ for i, stat in stat_I.iterrows():
     # due to the measurement of multiple depths requiring specialized code
     if stat_I.at[i,"Abr"] == "USF-COMPS":
         stat_I.at[i,"Type"] = "USF"
-        
-    # I classify this one as "USF" even though it's "UNCW-CORMP" because of the
-    # multiple depth layers, a characteristic otherwise unique to USF moorings
-    if stat_I.at[i,"Reg"] == "mooring-ob27m-onslow-bay-nc":
-        stat_I.at[i,"Type"] = "USF"
 
 print("Stations parsed for IOOS.")
         
@@ -153,11 +148,6 @@ for i, stat in stat_S.iterrows():
     # label the USF stations as a different type from FACT or SWT
     # due to the measurement of multiple depths requiring specialized code
     if stat_S.at[i,"Abr"] == "USF-COMPS":
-        stat_S.at[i,"Type"] = "USF"
-        
-    # I classify this one as "USF" even though it's "UNCW-CORMP" because of the
-    # multiple depth layers, a characteristic otherwise unique to USF moorings
-    if stat_S.at[i,"Reg"] == "mooring-ob27m-onslow-bay-nc":
         stat_S.at[i,"Type"] = "USF"
         
 print("Stations parsed for SECOORA.")
