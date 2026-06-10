@@ -1,4 +1,4 @@
-# Purpose: Create a simple bar chart showing the depths at each station
+# Purpose: Convert USF data into same format as FACT, NDBC, and SWT data.
 #
 # Date of Version 01: Nov. 03, 2025
 #
@@ -7,57 +7,89 @@
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 import os
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
-from matplotlib.ticker import MultipleLocator
+import time
 
-t = "Year"
+s = time.time()
 
-# open station lists
-stat_A = pd.read_csv(('Stats/Trends_' + t + '.txt'),
+stat_all = pd.read_csv('Docs/List_Download_All.txt',
                         header=0, sep="|", index_col=False)
 
-folder = "Figs/Statistics/"
-    
-# my personal preferences for font
-plt.rcParams["font.family"] = "serif"
-plt.rcParams['font.serif'] = ['Times New Roman']
-plt.rcParams['font.size'] = 12
+for stat in stat_all.columns:
+    if stat_all[stat].dtype == 'object':
+        stat_all[stat] = stat_all[stat].str.strip()
 
-for i in range(10,31,10):
-    Pt_A = ((stat_A["N_Mn"] >= i) & (stat_A["N_Mn"] < i + 10))
-    sA = stat_A.loc[Pt_A,:].reset_index(drop=True)
+# The Onslow Bay station includes data from multiple depths, so it needs to be
+# processed using the same code as the USF-COMPS stations
+stat_all = stat_all.loc[(stat_all["Type"] == "USF") |
+                        (stat_all["Reg"] == "mooring-ob27m-onslow-bay-nc"),:]
+
+nsa = 2
+nsd = 3
+q_lo = 0.003
+q_hi = 0.997
+    
+# loop through stations
+for i, stat in stat_all.iterrows():
+    head = "Data/" + stat["Type"] + "/"
+    f_old = head + "L00N/"
+    f_new = head + "QC/"
     
     # create the folder only if necessary
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    
-    fig, ax = plt.subplots()
-    plt.draw()
-    
-    # axis labels; rotate the x-axis labels 90 degrees
-    ax.set_ylabel(r'Count')
-    
-    # x-axis limits and ticks
-    ax.set_xlim(-0.3,1.5)
-    ax.set_xticks(np.arange(-0.3,1.51,step=0.05))
-    ax.xaxis.set_minor_locator(MultipleLocator(5))
-    ax.set_xticklabels(np.arange(-0.3,1.51,step=0.05),rotation=90)
-    ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.2f'))
+    if not os.path.exists(f_new):
+        os.makedirs(f_new) 
         
-    # y-axis limits and titles
-    ax.set_ylim(0,26)
-    ax.set_yticks(np.arange(0,26,step=5))
-    ax.yaxis.set_minor_locator(MultipleLocator(1))
-    ax.set_yticklabels(np.arange(0,26,step=5))
-      
-    # plot title
-    ax.set_title(r'Number of Stations by Trend ($^{\circ}$C/dec)')
+    # extract data from netCDF files
+    file2open = f_old + stat["Reg"] + ".nc"
+                
+    # open the data file
+    ds = xr.open_dataset(file2open,mask_and_scale=True)
+    df = ds.to_dataframe()
+    ds.close()
     
-    # make bars
-    ax.hist(np.array(sA["Trend"]*10), bins=np.arange(-0.3,1.5,step=0.05))
+    # rename columns for standarization across datasets and create new
+    # columns as necessary for quality control
+    df = df.rename(columns={"longitude": "lon",
+                            "latitude": "lat",
+                            "sea_water_temperature": "wt_new", 
+                            "sea_water_temperature_qc_agg": "wt_flag"})
     
-    # save file
-    file2save = folder + "Counts_Trends_" + t + str(i) + ".png"
-    fig.savefig(file2save,bbox_inches='tight',dpi=300)
+    # cull any NaN's from the data
+    Pt = ~np.isnan(df["wt_new"])
+    df = df.loc[Pt,:].set_index('time')
+    
+    df["wt_info"] = np.full(np.shape(df["wt_new"]),"Not tested",dtype='O')
+    df.loc[df["wt_flag"] == 1,"wt_info"] = "Passed"
+    df.loc[df["wt_flag"] == 2,"wt_info"] = "Untested"
+    df.loc[df["wt_flag"] >= 3,"wt_info"] = "Failed"
+    df.loc[df["wt_flag"] == 9,"wt_info"] = "Missing or not measured"
+    
+    # set the index and convert to an xarray
+    ds = df.to_xarray()
+    
+    # define the long variable names
+    ds.attrs["long_name"] = [
+        "longitude",
+        "latitude",
+        "water temperature",
+        "water temperature QARTOD flag",
+        "water temperature QARTOD failure reason"
+    ]
+    
+    # assign the units
+    ds.attrs["units"] = [
+        "degrees north",
+        "degrees east",
+        "degrees C",
+        "QARTOD flag",
+        "QARTOD flag reason"
+    ]
+    
+    # save the dataset
+    ncf = f_new + stat["Reg"] + ".nc"
+    ds.to_netcdf(path=ncf, mode="w")
+    
+    e = time.time()
+    print("Successfully saved " + str(stat["Reg"]) + 
+          " at " + str(round((e - s), 3)), "seconds")
